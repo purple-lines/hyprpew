@@ -14,7 +14,7 @@ A Hyprland plugin that adds smooth **curtain-style closing animations** for wind
 ### Using hyprpm (Recommended)
 
 ```bash
-hyprpm add https://github.com/purplelines/hyprpew
+hyprpm add https://github.com/purple-lines/hyprpew
 hyprpm enable hyprpew
 hyprpm reload
 ```
@@ -74,7 +74,7 @@ The plugin hooks into Hyprland's window close event and renders a curtain-style 
 
 ```bash
 # Clone the repository
-git clone https://github.com/purplelines/hyprpew.git
+git clone https://github.com/purple-lines/hyprpew.git
 cd hyprpew
 
 # Build
@@ -103,12 +103,3 @@ hyprctl plugin list
 ```
 
 You should see `hyprpew` in the list.
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Credits
-
-- Inspired by macOS window animations
-- Built using the Hyprland Plugin API
