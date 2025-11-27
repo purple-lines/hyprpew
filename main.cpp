@@ -38,6 +38,8 @@ void onTick(void* self, SCallbackInfo& info, std::any data) {
         window->m_realPosition->setValueAndWarp(Vector2D(newX, closingData->originalPos.y));
         window->m_realSize->setValueAndWarp(Vector2D(newWidth, closingData->originalSize.y));
         
+        window->m_alpha->setValueAndWarp(easedProgress);
+        
         if (closingData->progress >= 1.0f) {
             closingData->finished = true;
             toRemove.push_back(windowId);

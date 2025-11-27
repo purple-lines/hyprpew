@@ -49,7 +49,7 @@ Add these options to your `hyprland.conf`:
 plugin {
     hyprpew {
         # Animation duration in seconds (default: 0.4)
-        duration = 0.4
+        duration = 0.6
     }
 }
 ```
