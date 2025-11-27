@@ -23,7 +23,6 @@ struct SClosingWindow {
     Vector2D                              originalPos;
     Vector2D                              originalSize;
     bool                                  finished = false;
-    bool                                  renderingDisabled = false;
     float                                 closeAmount = 0.0f;
 };
 

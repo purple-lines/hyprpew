@@ -1,15 +1,7 @@
 #include "globals.hpp"
-#include "CurtainPassElement.hpp"
-
-#include <hyprland/src/render/pass/PassElement.hpp>
 
 static SP<HOOK_CALLBACK_FN> g_pCloseWindowHook;
-static SP<HOOK_CALLBACK_FN> g_pRenderHook;
 static SP<HOOK_CALLBACK_FN> g_pTickHook;
-
-inline float easeInOutCubic(float t) {
-    return t < 0.5f ? 4.0f * t * t * t : 1.0f - std::pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
-}
 
 inline float easeOutExpo(float t) {
     return t == 1.0f ? 1.0f : 1.0f - std::pow(2.0f, -10.0f * t);
@@ -36,9 +28,15 @@ void onTick(void* self, SCallbackInfo& info, std::any data) {
         auto elapsed = std::chrono::duration<float>(now - closingData->startTime).count();
         closingData->progress = std::min(1.0f, elapsed / closingData->duration);
         
-            float easedProgress = easeOutExpo(closingData->progress);
+        float easedProgress = easeOutExpo(closingData->progress);
+        closingData->closeAmount = easedProgress;
         
-            closingData->closeAmount = easedProgress * 0.5f;
+        float shrinkRatio = 1.0f - easedProgress;
+        float newWidth = closingData->originalSize.x * shrinkRatio;
+        float newX = closingData->originalPos.x + (closingData->originalSize.x - newWidth) / 2.0f;
+        
+        window->m_realPosition->setValueAndWarp(Vector2D(newX, closingData->originalPos.y));
+        window->m_realSize->setValueAndWarp(Vector2D(newWidth, closingData->originalSize.y));
         
         if (closingData->progress >= 1.0f) {
             closingData->finished = true;
@@ -57,6 +55,10 @@ void onTick(void* self, SCallbackInfo& info, std::any data) {
             auto window = it->second->window.lock();
             g_pGlobalState->closingWindows.erase(it);
             
+            if (window) {
+                window->m_fadingOut = false;
+                g_pCompositor->closeWindow(window);
+            }
         }
     }
 }
@@ -89,38 +91,8 @@ void onCloseWindow(void* self, SCallbackInfo& info, std::any data) {
     
     g_pGlobalState->closingWindows[windowId] = closingData;
     
-}
-
-void onRenderStage(void* self, SCallbackInfo& info, std::any data) {
-    if (!g_pGlobalState || g_pGlobalState->closingWindows.empty())
-        return;
-    
-    auto stage = std::any_cast<eRenderStage>(data);
-    
-    if (stage != RENDER_POST_WINDOWS)
-        return;
-    
-    auto monitor = g_pHyprOpenGL->m_renderData.pMonitor.lock();
-    if (!monitor)
-        return;
-    
-    for (auto& [windowId, closingData] : g_pGlobalState->closingWindows) {
-        if (!closingData || closingData->finished)
-            continue;
-        
-        auto window = closingData->window.lock();
-        if (!window)
-            continue;
-        
-        if (window->m_monitor.lock() != monitor)
-            continue;
-        
-        CCurtainPassElement::SCurtainData curtainData;
-        curtainData.closingWindow = closingData.get();
-        curtainData.pMonitor = monitor;
-        
-        g_pHyprRenderer->m_renderPass.add(makeUnique<CCurtainPassElement>(curtainData));
-    }
+    window->m_fadingOut = true;
+    info.cancelled = true;
 }
 
 APICALL EXPORT std::string PLUGIN_API_VERSION() {
@@ -151,11 +123,6 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     g_pTickHook = HyprlandAPI::registerCallbackDynamic(
         PHANDLE, "tick",
         [](void* self, SCallbackInfo& info, std::any data) { onTick(self, info, data); }
-    );
-    
-    g_pRenderHook = HyprlandAPI::registerCallbackDynamic(
-        PHANDLE, "render",
-        [](void* self, SCallbackInfo& info, std::any data) { onRenderStage(self, info, data); }
     );
 
     HyprlandAPI::reloadConfig();

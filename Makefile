@@ -10,7 +10,7 @@ endif
 PKG_CONFIG_DEPS = pixman-1 libdrm hyprland pangocairo libinput libudev wayland-server xkbcommon
 PKG_CONFIG_FLAGS = $(shell pkg-config --cflags $(PKG_CONFIG_DEPS))
 
-SRCS = main.cpp CurtainPassElement.cpp
+SRCS = main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 TARGET = hyprpew.so
