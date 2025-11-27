@@ -1,0 +1,14 @@
+# Compiled plugin
+*.so
+
+# Object files
+*.o
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/

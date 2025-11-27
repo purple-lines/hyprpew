@@ -1,0 +1,11 @@
+[repository]
+name = "hyprpew"
+authors = ["purplelines"]
+
+[hyprpew]
+description = "A plugin that adds smooth curtain-style closing animations for windows"
+authors = ["purplelines"]
+output = "hyprpew.so"
+build = [
+    "make all",
+]
