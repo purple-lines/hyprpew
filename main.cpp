@@ -86,13 +86,16 @@ void onCloseWindow(void* self, SCallbackInfo& info, std::any data) {
     closingData->progress = 0.0f;
     closingData->closeAmount = 0.0f;
     
-    closingData->originalPos = window->m_realPosition->goal();
-    closingData->originalSize = window->m_realSize->goal();
+    closingData->originalPos = window->m_position;
+    closingData->originalSize = window->m_size;
     
     if (closingData->originalSize.x <= 0 || closingData->originalSize.y <= 0) {
         closingData->originalPos = window->m_realPosition->value();
         closingData->originalSize = window->m_realSize->value();
     }
+    
+    window->m_originalClosedPos = closingData->originalPos;
+    window->m_originalClosedSize = closingData->originalSize;
     
     g_pGlobalState->closingWindows[windowId] = closingData;
     
